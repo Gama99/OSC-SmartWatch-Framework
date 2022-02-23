@@ -8,28 +8,24 @@ function preventDefault(event) {
   event.preventDefault();
 }
 
-class GPS extends Component {
+class Battery extends Component {
   constructor(props){
     super(props);
-    this.state = { time: Date.now() };
+    this.state = { disp: localStorage.getItem("globalBatt") };
   }
   
   render(){
-    var time = new Date();
+    var disp = localStorage.getItem("globalBatt");
 
     return(
       <React.Fragment>
-        <Title>GPS Tracker</Title>
-        <Typography component="p" variant="h4">
-          Current Location
-        </Typography>
-        <Typography color="text.secondary" sx={{ flex: 1 }}>
-
-          as of {time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })} on {(new Date().getMonth()+1)+'/'+(new Date().getDate())+'/'+new Date().getFullYear()}
+        <Title>Battery Level</Title>
+        <Typography component="p" variant="h4" sx={{ flex: 1 }}>
+          {disp/100}%
         </Typography>
         <div>
           <Link color="primary" href="#" onClick={preventDefault}>
-            View Location Data
+            View Battery Data
           </Link>
         </div>
       </React.Fragment>
@@ -38,9 +34,9 @@ class GPS extends Component {
   
   componentDidMount() {
     setInterval(() => {
-      this.setState({time: Date.now()})    
+      this.setState({disp: localStorage.getItem("globalBatt")})
      }, 1000)
   }
 }
 
-export default GPS;
+export default Battery;

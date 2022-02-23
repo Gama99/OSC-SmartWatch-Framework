@@ -3,24 +3,9 @@
  <head>
   <title>Bangle.js Accelerometer streaming</title>
  </head>
- <body>
-    <!-- <input type="button" id='script' name="scriptbutton" value=" Run Script " onclick="goPython()">
-
-    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-
-    <script>
-        function goPython(){
-            $.ajax({
-              url: "testserver.py",
-             context: document.body
-            }).done(function() {
-             alert('finished python script');;
-            });
-        }
-    </script> -->
-        
+ <body> 
 <script src="https://www.puck-js.com/puck.js"></script>
-<button id="btnConnect">Connects</button>
+<button id="btnConnect">Connect to Watch</button>
 <button onclick="connection.write('LED1.set()' + '\n');">LED On!</button>
 <button onclick="connection.write('LED1.reset()' + '\n');">LED Off!</button>
 <button onclick="connection.write('Bangle.beep(200,6000)' + '\n'); senttime = date.getTime();">Buzz</button>
@@ -189,7 +174,7 @@ function setBarPos(id,d) {
 .bar span {
   width : 1px;
   height: 20px;
-  background-color : blue;
+  background-color : red;
   position:absolute;
   display: inline-block;
   left: 150px;

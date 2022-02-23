@@ -4,11 +4,15 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PeopleIcon from '@mui/icons-material/People';
-import BarChartIcon from '@mui/icons-material/BarChart';
+import BatteryFullIcon from '@mui/icons-material/BatteryFull';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import ThreeSixtyIcon from '@mui/icons-material/ThreeSixty';
+import ExploreIcon from '@mui/icons-material/Explore';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import BluetoothIcon from '@mui/icons-material/Bluetooth';
+import BluetoothDisabledIcon from '@mui/icons-material/BluetoothDisabled';
+import HelpIcon from '@mui/icons-material/Help';
 import LayersIcon from '@mui/icons-material/Layers';
-import AssignmentIcon from '@mui/icons-material/Assignment';
 
 export const mainListItems = (
   <div>
@@ -20,51 +24,73 @@ export const mainListItems = (
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <ShoppingCartIcon />
+        <BatteryFullIcon />
       </ListItemIcon>
-      <ListItemText primary="Orders" />
+      <ListItemText primary="Battery Level" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <PeopleIcon />
+        <LocationOnIcon />
       </ListItemIcon>
-      <ListItemText primary="Customers" />
+      <ListItemText primary="GPS Location" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <BarChartIcon />
+        <ThreeSixtyIcon />
       </ListItemIcon>
-      <ListItemText primary="Reports" />
+      <ListItemText primary="Accelerometer Data" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <LayersIcon />
+        <ExploreIcon />
       </ListItemIcon>
-      <ListItemText primary="Integrations" />
+      <ListItemText primary="Magnetometer Data" />
+    </ListItem>
+    <ListItem button>
+      <ListItemIcon>
+        <MonitorHeartIcon />
+      </ListItemIcon>
+      <ListItemText primary="Heart Rate" />
     </ListItem>
   </div>
 );
 
+const connectWatch = () => {
+  window.open("https://www.puck-js.com/puck.js", '_blank').focus();
+  alert('Connection In Progress');
+};
+
+const disconnectWatch = () => {
+  alert('Connection In Progress');
+};
+
+const troubleshoot = () => {
+  window.open("https://www.espruino.com/Bangle.js+Getting+Started#loading-apps", '_blank').focus();
+  window.open("https://banglejs.com/reference", '_blank').focus();
+  alert('Redirecting to help pages');
+};
+
 export const secondaryListItems = (
+  
   <div>
-    <ListSubheader inset>Saved reports</ListSubheader>
+    <ListSubheader inset>Bluetooth Connectivity</ListSubheader>
     <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
+      <ListItemIcon onClick={connectWatch}>
+        <BluetoothIcon />
       </ListItemIcon>
-      <ListItemText primary="Current month" />
+      <ListItemText primary="Connect Watch" />
     </ListItem>
     <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
+      <ListItemIcon onClick={disconnectWatch}>
+        <BluetoothDisabledIcon />
       </ListItemIcon>
-      <ListItemText primary="Last quarter" />
+      <ListItemText primary="Disconnect Watch" />
     </ListItem>
     <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
+      <ListItemIcon onClick={troubleshoot}>
+        <HelpIcon />
       </ListItemIcon>
-      <ListItemText primary="Year-end sale" />
+      <ListItemText primary="Troubleshoot" />
     </ListItem>
   </div>
 );

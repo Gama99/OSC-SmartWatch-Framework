@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
@@ -29,6 +30,8 @@ import Location from './Location';
 import Temperature from './Temperature';
 import Connection from './Connectivity';
 import Tester from './Tester';
+import Battery from './Battery';
+
 
 function Credit(props) {
   return (
@@ -105,7 +108,7 @@ function DashboardContent() {
         <AppBar position="absolute" open={open}>
           <Toolbar
             sx={{
-              pr: '24px', // keep right padding when drawer closed
+              pr: '24px',
             }}
           >
             <IconButton
@@ -167,68 +170,61 @@ function DashboardContent() {
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 3 }}>
             <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
+              {/* Temperature */}
+              <Grid item xs={12} md={4} lg={4}>
                 <Paper
                   sx={{
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 175,
                   }}
                 >
-                  <Chart />
+                  <Temperature />
                 </Paper>
               </Grid>
-              {/* GPS Location */}
-              <Grid item xs={12} md={4} lg={3}>
+              {/* Battery */}
+              <Grid item xs={12} md={4} lg={4}>
                 <Paper
                   sx={{
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 175,
                   }}
                 >
-                  <GPS />
+                  <Battery />
+                </Paper>
+              </Grid>
+              {/* Heart */}
+              <Grid item xs={12} md={4} lg={4}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 175,
+                  }}
+                >
+                  <Health />
                 </Paper>
               </Grid>
               {/* Live Accelerometer */}
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Index />
-                </Paper>
-              </Grid>
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+              <Grid item xs={12} md={6} lg={6}>
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 285}}>
                   <Accelerometer />
                 </Paper>
               </Grid>
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+              <Grid item xs={12} md={6} lg={6}>
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 285}}>
                   <Compass />
                 </Paper>
               </Grid>
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Health />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4} lg={4}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Temperature />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4} lg={4}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Connection />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4} lg={4}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Tester />
+                  <Index />
                 </Paper>
               </Grid>
               <Grid item xs={12}>

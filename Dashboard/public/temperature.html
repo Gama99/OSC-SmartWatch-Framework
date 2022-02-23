@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Bangle.js Health streaming</title>
+ </head>
+ <body> 
+<script src="https://www.puck-js.com/puck.js"></script>
+<button id="btnConnect">Connect to Watch</button>
+<p> Temperature (Celsius): <span id="temp"></span></p>
+<p> conn: <span id="chk"></span></p>
+<script>
+
+var TEMP_CODE = `
+  function onTimer() {
+    // Get the temperature as a string
+    var t = E.getTemperature().toFixed(1);
+    // Clear display
+    g.clear();
+    // Use the small font for a title
+    g.setFontBitmap();
+    g.drawString("Temperature:");
+    // Use a large font for the value itself
+    g.setFontVector(40);
+    g.drawString(t, (g.getWidth()-g.stringWidth(t))/2,10);
+    // Update the screen
+    g.flip();
+    Bluetooth.println(t);
+  }
+
+  // Update temperature every 1 seconds
+  setInterval(onTimer,1000);
+  // Update temperature immediately
+  onTimer();
+  \n
+`;
+
+var connection;
+document.getElementById("btnConnect").addEventListener("click", function() {
+  if (connection) {
+    connection.close();
+    connection = undefined;
+  }
+
+  
+
+  Puck.connect(function(c) {
+    if (!c) {
+      alert("Couldn't connect!");
+      return;
+    }
+    connection = c;
+    document.getElementById("chk").innerHTML = (connection);
+    var buf = "";
+    connection.on("data", function(d) {
+    buf += d;
+    var l = buf.split("\n");
+    buf = l.pop();
+    l.forEach(onLine);
+    });
+
+    connection.write("reset();\n", function() {
+      const d = new Date();
+      setTimeout(function() { connection.write(TEMP_CODE);}, 1000);
+    });
+  });
+});
+
+function onLine(line) {
+  document.getElementById("temp").innerHTML = parseInt(line).toFixed(1);
+  localStorage.setItem("globaltemp", parseInt(line).toFixed(1));
+}
+
+</script>
+ </body>
+</html>

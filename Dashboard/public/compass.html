@@ -6,59 +6,38 @@
  <body> 
 <script src="https://www.puck-js.com/puck.js"></script>
 <button id="btnConnect">Connect to Watch</button>
-<button onclick="connection.write('LED1.set()' + '\n');">Turn LED1 On</button>
-<button onclick="connection.write('LED1.reset()' + '\n');">Turn LED1 Off</button>
 
-<button onclick="connection.write('LED2.set()' + '\n');">Turn LED2 On</button>
-<button onclick="connection.write('LED2.reset()' + '\n');">Turn LED2 Off</button>
-
-<button onclick="connection.write('Bangle.beep(200,6000)' + '\n'); senttime = date.getTime();">Buzz</button>
-
-<!-- <p id="greeting">Greetings</p> -->
- <p> X-Axis (Left-Right): <span id="displayx"></span></p>
- <p> Y-Axis (Up-Down): <span id="displayy"></span></p>
- <p> Z-Axis (In-Out): <span id="displayz"></span></p>
- <p> Magnitude of Acceleration: <span id="magnitude"></span></p>
- 
-
- <p> Heart Rate (BPM): <span id="hrm"></span></p>
- <p> Heart Rate Confidence (%): <span id="conf"></span></p>
- <p> milli: <span id="milli"></span></p>
- <p> sent: <span id="sent"></span></p>
- <p> recv: <span id="recv"></span></p>
- <p> diff: <span id="diff"></span></p>
- <!-- <div id="displayx"></div>
- <div id="displayy"></div>
- <div id="displayz"></div> -->
+<!-- Raw Magentometer Readings-->
+<p> X reading: <span id="displayx"></span></p>
 <p>X: <span class="bar"><span id="barX"></span></span></p>
-<p>Y: <span class="bar"><span id="barY"></span></span></p>
-<p>Z: <span class="bar"><span id="barZ"></span></span></p>
+<br>
 
-<div class="square"></div>
+<p> Y reading: <span id="displayy"></span></p>
+<p>Y: <span class="bar"><span id="barY"></span></span></p>
+<br>
+
+<p> Z reading: <span id="displayz"></span></p>
+<p>Z: <span class="bar"><span id="barZ"></span></span></p>
+<br>
+
+<p> Angle reading: <span id="angle"></span></p>
+<p>Angle: <span class="bar"><span id="barAngle"></span></span></p>
+
 <script>
 // Code to upload to Bangle.js
 var BANGLE_CODE = `
-Bangle.on('accel',function(a) {
+Bangle.setCompassPower(1);
+Bangle.on('mag',function(a) {
     var d = [
-    Math.round(a.x*100),
-    Math.round(a.y*100),
-    Math.round(a.z*100),
-    Math.round(a.diff*100),
-    Math.round(a.mag*100),
+    Math.round(a.x),
+    Math.round(a.y),
+    Math.round(a.z),
+    Math.round(a.heading),
     ];
     Bluetooth.println(d.join(","));
 });\n
 `;
-var HRM_CODE = `
-Bangle.setHRMPower(1);
-Bangle.on('HRM', function(h) { 
-    var w = [
-    h.bpm,
-    h.confidence,
-    ];
-    Bluetooth.println(w.join(","));
- });\n
- `;
+
 // When we click the connect button...
 var connection;
 // const fs = require('fs')
@@ -97,7 +76,6 @@ document.getElementById("btnConnect").addEventListener("click", function() {
       const d = new Date();
       
       setTimeout(function() { connection.write(BANGLE_CODE);}, 1000);
-      setTimeout(function() { connection.write(HRM_CODE);}, 1000);
         // Now upload our code to it
     
         // connection.write(HRM_CODE+"\n",
@@ -123,39 +101,27 @@ if (d[0] == "Bangle.beep(200"){
   recievetime = date.getTime();
 }
 
-  if (d.length==5) {
-    // we have an accelerometer reading
-    var accel = {
+  if (d.length==4) {
+    // we have an magnetometer reading
+    var magnetometer = {
       x : parseInt(d[0]),
       y : parseInt(d[1]),
       z : parseInt(d[2]),
-      mag : parseInt(d[4]),
+      heading : parseInt(d[3]),
     }; 
     // var hrm = {
     //   hrm : parseInt(d[3]),
     // }
     // Update bar positions
-    setBarPos("barX", accel.x);
-    setBarPos("barY", accel.y);
-    setBarPos("barZ", accel.z);
-    document.getElementById("displayx").innerHTML = accel.x;
-    document.getElementById("displayy").innerHTML = accel.y;
-    document.getElementById("displayz").innerHTML = accel.z;
-    document.getElementById("magnitude").innerHTML = accel.mag;
+    setBarPos("barX", magnetometer.x);
+    setBarPos("barY", magnetometer.y);
+    setBarPos("barZ", magnetometer.z);
+    setBarPos("barAngle", magnetometer.heading);
+    document.getElementById("displayx").innerHTML = magnetometer.x;
+    document.getElementById("displayy").innerHTML = magnetometer.y;
+    document.getElementById("displayz").innerHTML = magnetometer.z;
+    document.getElementById("angle").innerHTML = magnetometer.heading;
   }
-  else if (d.length == 2){
-
-    document.getElementById("hrm").innerHTML = parseInt(d[0]);
-    document.getElementById("conf").innerHTML = parseInt(d[1]);
-  }
-  // const date = new Date();
-  date = new Date();
-  var tempor = date.getTime();
-  document.getElementById("milli").innerHTML = tempor;
-  document.getElementById("sent").innerHTML = senttime;
-  document.getElementById("recv").innerHTML = recievetime;
-  document.getElementById("diff").innerHTML = recievetime-senttime;
-  document.getElementById("square").style['background-color'] = "red";
 }
 // Set the position of each bar
 function setBarPos(id,d) {
@@ -183,17 +149,11 @@ function setBarPos(id,d) {
 .bar span {
   width : 1px;
   height: 20px;
-  background-color : orange;
+  background-color : green;
   position:absolute;
   display: inline-block;
   left: 150px;
   top: 2px;
-}
-
-.square {
-  height: 50px;
-  width: 50px;
-  background-color: rgb(148, 38, 38);
 }
 </style>
  </body>

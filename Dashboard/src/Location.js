@@ -3,14 +3,14 @@ import Title from './Title';
 
 function iframe() {
   return {
-      __html: '<iframe src="./bangle.html" width="700" height="600"></iframe>'
+      __html: '<iframe src="./location.html" width="400" height="400"></iframe>'
   }
 }
 
-export default function Index() {
+export default function Location() {
   return (
       <div>
-          <Title>All Sensor Data</Title>
+          <Title>Location Data</Title>
 
           <div dangerouslySetInnerHTML={iframe()} />
       </div>)
