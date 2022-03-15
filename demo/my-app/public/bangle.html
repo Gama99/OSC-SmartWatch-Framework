@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Bangle.js Accelerometer streaming</title>
+  <link rel="stylesheet" type="text/css" media="all" href="osc-view.css">
+  </link>
+  <script src="node_modules/jquery/dist/jquery.js"></script>
+  <script src="node_modules/osc/dist/osc-browser.min.js"></script>
+  <script type="text/javascript"></script>
+ </head>
+ <body> 
+<script src="https://www.puck-js.com/puck.js"></script>
+<button id="btnConnect">Connect to Watch</button>
+<br>
+<button id="btnConnect2">Connect to Watch</button>
+<br>
+<button onclick="connection.write('LED1.set()' + '\n');">Turn LED1 On</button>
+<button onclick="connection.write('LED1.reset()' + '\n');">Turn LED1 Off</button>
+
+<br>
+<button onclick="connection.write('LED2.set()' + '\n');">Turn LED2 On</button>
+<button onclick="connection.write('LED2.reset()' + '\n');">Turn LED2 Off</button>
+
+<br>
+<button onclick="connection.write('Bangle.beep(200,6000)' + '\n'); senttime = date.getTime();">Buzz</button>
+
+<br>
+<P> Magnetometer Readings: </P>
+<p> X reading: <span id="dispMagX"></span></p>
+<p>X: <span class="bar"><span id="barMagX"></span></span></p>
+
+<p> Y reading: <span id="dispMagY"></span></p>
+<p>Y: <span class="bar"><span id="barMagY"></span></span></p>
+
+<p> Z reading: <span id="dispMagZ"></span></p>
+<p>Z: <span class="bar"><span id="barMagZ"></span></span></p>
+
+<p> Angle reading: <span id="dispMagAngle"></span></p>
+<p>Angle: <span class="bar"><span id="barMagAngle"></span></span></p>
+<br>
+<br>
+
+<p> Accelerometer Readings: </p>
+<p> X-Axis (Left-Right): <span id="dispAccelX"></span></p>
+<p>X: <span class="bar"><span id="barAccelX"></span></span></p>
+
+<p> Y-Axis (Up-Down): <span id="dispAccelY"></span></p>
+<p>Y: <span class="bar"><span id="barAccelY"></span></span></p>
+
+<p> Z-Axis (In-Out): <span id="dispAccelZ"></span></p>
+<p>Z: <span class="bar"><span id="barAccelZ"></span></span></p>
+
+<p> Magnitude of Acceleration: <span id="dispAccelMag"></span></p>
+<p>Mag: <span class="bar"><span id="barAccelMag"></span></span></p>
+<br>
+<br>
+
+<p> Heart Rate (BPM): <span id="hrm"></span></p>
+<p> Filtered Heart Rate (BPM): <span id="FHR"></span></p>
+<p> Heart Rate Confidence (%): <span id="conf"></span></p>
+
+<br>
+<p> Temperature (Celsius): <span id="temp"></span></p>
+<br>
+
+<br>
+<p> Battery (Voltage): <span id="bat"></span></p>
+<br>
+
+<p> milli: <span id="milli"></span></p>
+<p> sent: <span id="sent"></span></p>
+<p> recv: <span id="recv"></span></p>
+<p> diff: <span id="diff"></span></p>
+ 
+<div class="square"></div>
+<script>
+  var port = new osc.WebSocketPort({
+      url: "ws://localhost:8081"
+    });
+
+    port.on("message", function (oscMessage) {
+      $("#message").text(JSON.stringify(oscMessage, undefined, 2));
+      console.log("message", oscMessage);
+      document.getElementById("FHR").innerHTML = oscMessage.args[0];
+      localStorage.setItem("globalFHR", oscMessage.args[0]);
+    });
+
+    port.open();
+
+    var rawheart = function () {
+      port.send({
+        address: "/rawhearer",
+        args: [raw]
+      });
+    };
+
+    var resVol = function () {
+      port.send({
+        address: "/reseter",
+        args: [1]
+      });
+    };
+
+    var heartDara = function () {
+      port.send({
+        address: "/hrmthing",
+        args: [hrm, cert]
+      });
+    };
+// Code to upload to Bangle.js
+var ACCEL_CODE = `
+Bangle.on('accel',function(a) {
+    var d = [
+    Math.round(a.x*100),
+    Math.round(a.y*100),
+    Math.round(a.z*100),
+    Math.round(a.diff*100),
+    Math.round(a.mag*100),
+    ];
+    Bluetooth.println(d.join(","));
+});\n
+`;
+var MAG_CODE = `
+Bangle.setCompassPower(1);
+Bangle.on('mag',function(a) {
+    var d = [
+    Math.round(a.x),
+    Math.round(a.y),
+    Math.round(a.z),
+    Math.round(a.heading),
+    ];
+    Bluetooth.println(d.join(","));
+});\n
+`;
+var TEMP_CODE = `
+  function onTimer() {
+    // Get the temperature as a string
+    var t = E.getTemperature()*100;
+    // Clear display
+    g.clear();
+    // Use the small font for a title
+    g.setFontBitmap();
+    g.drawString("Temperature:");
+    // Use a large font for the value itself
+    g.setFontVector(40);
+    g.drawString(t/100, (g.getWidth()-g.stringWidth(t))/2,10);
+    // Update the screen
+    g.flip();
+    var d = [
+    "tmp",
+    t,
+    ];
+    Bluetooth.println(d.join(","));
+  }
+
+  // Update temperature every 1 seconds
+  setInterval(onTimer,1000);
+  // Update temperature immediately
+  onTimer();
+  \n
+`;
+var BATTERY_CODE = `
+  function onTimer2() {
+    // Get the battery values as a string
+    var v = E.getBattery()*100;
+    Bluetooth.println(v);
+    var d = [
+    "bat",
+    v,
+    ];
+    Bluetooth.println(d.join(","));
+  }
+
+  // Update temperature every 1 seconds
+  setInterval(onTimer2,1000);
+  // Update temperature immediately
+  onTimer2();
+  \n
+`;
+var HRM_CODE = `
+Bangle.setHRMPower(1);
+Bangle.on('HRM', function(h) { 
+    var w = [
+    h.bpm,
+    h.confidence,
+    ];
+    Bluetooth.println(w.join(","));
+ });\n
+ `;
+
+var HRMCODE2 = `
+Bangle.ioWr(0x80,0); // turn HRM on
+setInterval(() => {Bluetooth.println(['H',analogRead(D29)])}, 100);
+
+`;
+// When we click the connect button...
+
+var connection2;
+document.getElementById("btnConnect2").addEventListener("click", function() {
+  // disconnect if connected already
+  if (connection2) {
+    connection2.close();
+    connection2 = undefined;
+  }
+  // Connect
+  Puck.connect(function(c) {
+    if (!c) {
+      alert("Couldn't connect!");
+      return;
+    }
+    connection2 = c;
+    var buf = "";
+    connection2.on("data", function(d) {
+    buf += d;
+    var l = buf.split("\n");
+    buf = l.pop();
+    l.forEach(onLine);
+    });
+    connection2.write("reset();\n", function() {
+      const d = new Date();
+      setTimeout(function() { connection2.write(ACCEL_CODE);}, 1000);
+      setTimeout(function() { connection2.write(MAG_CODE);}, 1000);
+      setTimeout(function() { connection2.write(TEMP_CODE);}, 1000);
+      setTimeout(function() { connection2.write(BATTERY_CODE);}, 1000);
+      setTimeout(function() { connection2.write(HRM_CODE);}, 1000);
+      setTimeout(function() { connection2.write(HRMCODE2);}, 1000);
+    });
+  });
+});
+
+
+
+var connection;
+document.getElementById("btnConnect").addEventListener("click", function() {
+  // disconnect if connected already
+  if (connection) {
+    connection.close();
+    connection = undefined;
+  }
+  // Connect
+  Puck.connect(function(c) {
+    if (!c) {
+      alert("Couldn't connect!");
+      return;
+    }
+    connection = c;
+    var buf = "";
+    connection.on("data", function(d) {
+    buf += d;
+    var l = buf.split("\n");
+    buf = l.pop();
+    l.forEach(onLine);
+    });
+    connection.write("reset();\n", function() {
+      const d = new Date();
+      setTimeout(function() { connection.write(ACCEL_CODE);}, 1000);
+      setTimeout(function() { connection.write(MAG_CODE);}, 1000);
+      setTimeout(function() { connection.write(TEMP_CODE);}, 1000);
+      setTimeout(function() { connection.write(BATTERY_CODE);}, 1000);
+      setTimeout(function() { connection.write(HRM_CODE);}, 1000);
+      setTimeout(function() { connection.write(HRMCODE2);}, 1000);
+    });
+  });
+});
+
+var date = new Date();
+var tempor = date.getTime();
+var senttime = 0;
+var recievetime = 0;
+var diff = 0;
+var temps = [];
+var times = [];
+var i = 0;
+var date = new Date();
+var tempor = date.getTime();
+var senttime = 0;
+var recievetime = 0;
+var diff = 0;
+var accel = {
+      x: 0,
+      y: 0,
+      z: 0,
+};
+var raw = 0;
+var hrm = 0;
+var cert = 0;
+
+function onLine(line) {
+  var d = line.split(",");
+  if (d[0] == "Bangle.beep(200"){
+    recievetime = date.getTime();
+  }
+  
+  if (d.length == 2 && d[0] == "tmp") {
+    document.getElementById("temp").innerHTML = parseInt(d[1]).toFixed(1);
+    localStorage.setItem("globaltemp", parseInt(d[1]).toFixed(1));
+    temps[i] = parseInt(d[1]).toFixed(1)/100;
+    var d = new Date();
+    times[i] = currentdate.getMonth()+1 + "/"
+                + (currentdate.getDate())  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+    i+=1;
+    localStorage.setItem("tempdatabase", JSON.stringify(temps));
+    localStorage.setItem("timedatabase", JSON.stringify(times));
+  }
+  if (d.length == 2 && d[0] == "bat") {
+    document.getElementById("bat").innerHTML = parseInt(d[1]).toFixed(1);
+    localStorage.setItem("globalBatt", parseInt(d[1]).toFixed(1));
+  }
+  if (d.length == 2) {
+    if (d[0] == "B")
+    {
+      console.log("sending");
+          
+      resVol()
+    }
+    if (d[0] == "H")
+    {
+      console.log("HIT HEART");
+      raw = d[1]
+      rawheart()
+          // console.log('2');
+          // if(vol_control == false)
+          // {
+          //     resVol()
+          //     vol_control = true;
+          // }
+          // else
+          // {
+          // vol_control = false
+          // }
+          // console.log(vol_control);
+    }
+    else
+    {
+      hrm = parseInt(d[0]);
+      document.getElementById("hrm").innerHTML = hrm;
+      cert = parseInt(d[1]);
+      document.getElementById("cert").innerHTML = cert; 
+      heartDara();
+    }
+  }
+  if (d.length == 4) {
+    // we have an magnetometer reading
+    var magnetometer = {
+      x : parseInt(d[0]),
+      y : parseInt(d[1]),
+      z : parseInt(d[2]),
+      heading : parseInt(d[3]),
+    }; 
+    setBarPos("barMagX", magnetometer.x);
+    setBarPos("barMagY", magnetometer.y);
+    setBarPos("barMagZ", magnetometer.z);
+    setBarPos("barMagAngle", magnetometer.heading);
+
+    document.getElementById("dispMagX").innerHTML = magnetometer.x;
+    document.getElementById("dispMagY").innerHTML = magnetometer.y;
+    document.getElementById("dispMagZ").innerHTML = magnetometer.z;
+    document.getElementById("dispMagAngle").innerHTML = magnetometer.heading;
+
+    localStorage.setItem("globalMagX", magnetometer.x);
+    localStorage.setItem("globalMagY", magnetometer.y);
+    localStorage.setItem("globalMagZ", magnetometer.z);
+    localStorage.setItem("globalMagAngle", magnetometer.heading);
+  }
+  if (d.length == 5) {
+    var accel = {
+      x : parseInt(d[0]),
+      y : parseInt(d[1]),
+      z : parseInt(d[2]),
+      mag : parseInt(d[4]),
+    }; 
+    setBarPos("barAccelX", accel.x);
+    setBarPos("barAccelY", accel.y);
+    setBarPos("barAccelZ", accel.z);
+    setBarPos("barAccelMag", accel.mag);
+
+    document.getElementById("dispAccelX").innerHTML = accel.x;
+    document.getElementById("dispAccelY").innerHTML = accel.y;
+    document.getElementById("dispAccelZ").innerHTML = accel.z;
+    document.getElementById("dispAccelMag").innerHTML = accel.mag;
+
+    localStorage.setItem("globalAccelX", accel.x);
+    localStorage.setItem("globalAccelY", accel.y);
+    localStorage.setItem("globalAccelZ", accel.z);
+    localStorage.setItem("globalAccelMag", accel.mag);
+  }
+  
+  date = new Date();
+  var tempor = date.getTime();
+  document.getElementById("milli").innerHTML = tempor;
+  document.getElementById("sent").innerHTML = senttime;
+  document.getElementById("recv").innerHTML = recievetime;
+  document.getElementById("diff").innerHTML = recievetime-senttime;
+  document.getElementById("square").style['background-color'] = "red";
+}
+
+function setBarPos(id,d) {
+  var s = document.getElementById(id).style;
+  if (d>150) d=150;
+  if (d<-150) d=-150;
+  if (d>=0) {
+    s.left="150px";
+    s.width=d+"px";
+  } 
+  else {
+    s.left=(150+d)+"px";
+    s.width=(-d)+"px";
+  }
+}
+
+</script>
+<style>
+/* Styles just to make the bars for X Y and Z look neat */
+.bar {
+  width : 500px;
+  height: 24px;
+  background-color : rgb(201, 200, 200);
+  position:relative;
+  display: inline-block;
+}
+.bar span {
+  width : 1px;
+  height: 20px;
+  background-color : orange;
+  position:absolute;
+  display: inline-block;
+  left: 150px;
+  top: 2px;
+}
+.square {
+  height: 50px;
+  width: 50px;
+  background-color: rgb(148, 38, 38);
+}
+
+</style>
+ </body>
+</html>
