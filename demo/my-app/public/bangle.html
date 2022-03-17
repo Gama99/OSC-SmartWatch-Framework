@@ -83,6 +83,13 @@
       console.log("message", oscMessage);
       document.getElementById("FHR").innerHTML = oscMessage.args[0];
       localStorage.setItem("globalFHR", oscMessage.args[0]);
+      if (oscMessage.args[0] > 100){
+        i = 0;
+        while (i < 1){
+          connection.write('Bangle.buzz()' + '\n')
+          i += 1;
+        }
+      }
     });
 
     port.open();
