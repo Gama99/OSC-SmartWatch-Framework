@@ -95,7 +95,7 @@ while True:
 
     
 
-    filtered_sig = hp.filter_signal(filtered, [0.7, 3.5], sample_rate=10, 
+    filtered_sig = hp.filter_signal(filtered, [0.7, 3.0], sample_rate=10, 
                                 order=3, filtertype='bandpass')
 
     #let's plot first 240 seconds and work with that!
