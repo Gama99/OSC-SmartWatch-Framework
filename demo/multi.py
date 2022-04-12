@@ -5,6 +5,9 @@ received packets.
 """
 import argparse
 import math
+import csv
+from datetime import datetime
+
 # import pythoncom 
 from pythonosc import dispatcher
 from pythonosc import osc_server
@@ -15,6 +18,13 @@ watchface_up = True
 startZ = 2323
 start_vol = 0
 volume_mod = 3
+
+with open("hrtDATA.csv", "w", newline="") as csvfile:
+  writer1 = csv.writer(csvfile)
+  writer1.writerow(["hart", "time"])
+  csvfile.close()
+#data.write("hart\n")
+#data.close()
 
 # newstart = False;
 # def accelthing(unused_addr, valx, valy, valz):
@@ -45,9 +55,14 @@ def multitest(unused_addr, valx, valy, valz):
 def rawhrtFnc(unused_addr, arg):
     # print('heart')
     # print(str(arg))
-    file1 = open("hrtDATA.csv", "a")  # append mode
-    file1.write(str(arg))
-    file1.close()
+    with open("hrtDATA.csv", "a", newline="") as csvfile:
+      writer = csv.writer(csvfile)
+      now = datetime.now()
+      n = now.strftime("%H:%M:%S.%f")[:-3]
+      writer.writerow([str(arg), n])
+      csvfile.close()
+    #file1.write(str(arg))
+    #file1.close()
 
 def print_volume_handler(unused_addr, args, volume):
   print(args)
