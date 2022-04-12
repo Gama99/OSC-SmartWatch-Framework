@@ -1,3 +1,4 @@
+from cmath import nan
 import numpy as np
 
 import heartpy as hp
@@ -5,6 +6,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy.signal import resample
+from scipy.signal import resample_poly
+
 
 import sys
 
@@ -18,7 +21,7 @@ import time
 
 import csv
 i = 0
-j = 500
+j = 100
 k = 0
 
 
@@ -41,7 +44,7 @@ if __name__ == "__main__":
 
 time.sleep(10)
 while True:
-    time.sleep(5)
+    
 
     file = open("hrtDATA.csv")
     reader = csv.reader(file)
@@ -57,8 +60,8 @@ while True:
     #plt.show()
 
     
-    first = i // 10
-    second = j // 10
+    first = i
+    second = j 
 
     raw = df['hart'].values[first:second]
     #plt.plot(signal)
@@ -68,11 +71,12 @@ while True:
     #plt.plot(signal[0:int(240 * 10)])
     #plt.title('original signal')
     #plt.show()
+    """
     mx = np.max(raw)
     mn = np.min(raw)
     global_range = mx - mn
 
-    windowsize = 5
+    windowsize = 50
     filtered = []
 
     for i in range(len(raw) // windowsize):
@@ -92,10 +96,18 @@ while True:
         else:
             for x in sliced:
                 filtered.append(x)
-
+      """
     
 
-    filtered_sig = hp.filter_signal(filtered, [0.7, 3.0], sample_rate=10, 
+
+    timer = df['time'].values[first:second]
+
+    sample_rate = hp.get_samplerate_datetime(timer, timeformat = '%H:%M:%S.%f')
+
+    #print(sample_rate)
+
+
+    filtered_sig = hp.filter_signal(raw, [0.3, 3.0], sample_rate=sample_rate, 
                                 order=3, filtertype='bandpass')
 
     #let's plot first 240 seconds and work with that!
@@ -113,22 +125,31 @@ while True:
     #plt.title('60 second segment of filtered signal')
     #plt.show()
 
-    resampled = resample(filtered_sig, len(filtered)* 10)
-
+    resampled = resample(filtered_sig, 10 * len(filtered_sig))
+    #resampled = resample_poly(filtered_sig, 10, 1)
     #don't forget to compute the new sampling rate
-    new_sample_rate = 100
+    new_sample_rate = 10 * sample_rate
 
+    #refiltered_sig = hp.filter_signal(resampled, [0.3, 3.0], sample_rate=new_sample_rate, 
+     #                          order=3, filtertype='bandpass')
+
+    print(len(resampled))
     #run HeartPy over a few segments, fingers crossed, and plot results of each
-    for s in [[i, j]]:
-        wd, m = hp.process(resampled[s[0]:s[1]], sample_rate = 100, 
-                        high_precision=True, clean_rr=True)
+    #for s in [[0, 100]]:
+    wd, m = hp.process(resampled, sample_rate = new_sample_rate, high_precision=True, clean_rr=True)
         #hp.plotter(wd, m, title = 'zoomed in section', figsize=(12,6))
         #hp.plot_poincare(wd, m)
         #plt.show()
-        print(k, " BPM: ", m["bpm"])
-        client2.send_message("/filter", m["bpm"])
+    print(k, " BPM: ", m["bpm"])
+    if np.isnan(m["bpm"]):
+      value = np.nan_to_num(m["bpm"])
+      client2.send_message("/filter", int(value))
+    else:
+      client2.send_message("/filter", int(m["bpm"] // 2))
+        #time.sleep(1)
         #for measure in m.keys():
             #print('%s: %f' %(measure, m[measure]))
     k += 1
-    i += 500
-    j += 500
+    i += int(sample_rate)
+    j += int(sample_rate)
+    time.sleep(1)
