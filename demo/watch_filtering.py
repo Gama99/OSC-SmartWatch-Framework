@@ -21,7 +21,7 @@ import time
 
 import csv
 i = 0
-j = 100
+j = 80
 k = 0
 
 
@@ -104,11 +104,11 @@ while True:
 
     sample_rate = hp.get_samplerate_datetime(timer, timeformat = '%H:%M:%S.%f')
 
-    #print(sample_rate)
+    print(sample_rate)
 
 
-    filtered_sig = hp.filter_signal(raw, [0.3, 3.0], sample_rate=sample_rate, 
-                                order=3, filtertype='bandpass')
+    filtered_sig = hp.filter_signal(raw, [0.7, 3.0], sample_rate=sample_rate, 
+                                order=8, filtertype='bandpass')
 
     #let's plot first 240 seconds and work with that!
    # plt.figure(figsize=(12,12))
