@@ -42,7 +42,7 @@ if __name__ == "__main__":
    # print("Serving on {}".format(server.server_address))
    # server.serve_forever()
 
-time.sleep(10)
+time.sleep(60)
 while True:
     
 
@@ -61,7 +61,7 @@ while True:
 
     
     first = i
-    second = j 
+    second = lines
 
     raw = df['hart'].values[first:second]
     #plt.plot(signal)
@@ -125,7 +125,7 @@ while True:
     #plt.title('60 second segment of filtered signal')
     #plt.show()
 
-    resampled = resample(filtered_sig, 10 * len(filtered_sig))
+    resampled = resample(filtered_sig, 10* len(filtered_sig))
     #resampled = resample_poly(filtered_sig, 10, 1)
     #don't forget to compute the new sampling rate
     new_sample_rate = 10 * sample_rate
@@ -136,16 +136,19 @@ while True:
     print(len(resampled))
     #run HeartPy over a few segments, fingers crossed, and plot results of each
     #for s in [[0, 100]]:
-    wd, m = hp.process(resampled, sample_rate = new_sample_rate, high_precision=True, clean_rr=True)
-        #hp.plotter(wd, m, title = 'zoomed in section', figsize=(12,6))
-        #hp.plot_poincare(wd, m)
-        #plt.show()
-    print(k, " BPM: ", m["bpm"])
-    if np.isnan(m["bpm"]):
-      value = np.nan_to_num(m["bpm"])
-      client2.send_message("/filter", int(value))
-    else:
-      client2.send_message("/filter", int(m["bpm"] // 2))
+    try:
+      wd, m = hp.process(resampled, sample_rate = new_sample_rate, high_precision=True, clean_rr=True)
+          #hp.plotter(wd, m, title = 'zoomed in section', figsize=(12,6))
+          #hp.plot_poincare(wd, m)
+          #plt.show()
+      print(k, " BPM: ", m["bpm"])
+      if np.isnan(m["bpm"]):
+        value = np.nan_to_num(m["bpm"])
+        client2.send_message("/filter", int(value))
+      else:
+        client2.send_message("/filter", int(m["bpm"]))
+    except:
+      print("No signal found")
         #time.sleep(1)
         #for measure in m.keys():
             #print('%s: %f' %(measure, m[measure]))
