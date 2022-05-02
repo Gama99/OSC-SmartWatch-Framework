@@ -57,7 +57,7 @@ class Compass extends Component {
           Angle (raw): {MagAngle}°
         </Typography>
         <div>
-          <Link color="primary" href="#" onClick={preventDefault}>
+        <Link href="javascript:window.open('magdata.html','popup','width=600,height=600');">
             View Magnetometer Data
           </Link>
         </div>

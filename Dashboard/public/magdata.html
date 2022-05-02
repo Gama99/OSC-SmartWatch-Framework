@@ -8,22 +8,26 @@
 </head>
 
 <body>
-<h1>Temperature Data Readings</h1>
+<h1>Magnetometer Readings</h1>
 
-<p>Click the button below in order to download the temperature readings as a csv file:</p>
+<p>Click the button below in order to download the magnetometer data readings as a csv file:</p>
 
 <button type="button" onclick="myFunction()">Download</button>
 
 <script>
 function myFunction() { 
 
-  let csvData = 'Temp Celsius,Time\n';
-  let tempArr = JSON.parse(localStorage.getItem("tempdatabase"));
-  let timeArr = JSON.parse(localStorage.getItem("timedatabase"));
+  let csvData = 'X,Y,Z,Angle,Time\n';
 
-  for (i = 0; i < tempArr.length; i++)
+  let magnetX = JSON.parse(localStorage.getItem("magX"));
+  let magnetY = JSON.parse(localStorage.getItem("magY"));
+  let magnetZ = JSON.parse(localStorage.getItem("magZ"));
+  let magnetAngle = JSON.parse(localStorage.getItem("magAngle"));
+  let magnetTimes = JSON.parse(localStorage.getItem("magTimes"));
+
+  for (i = 0; i < magnetX.length; i++)
   {
-    let line = tempArr[i] + ',' + timeArr[i];
+    let line = magnetX[i] + ',' + magnetY[i] + ',' + magnetZ[i]+ ',' + magnetAngle[i]+ ',' + magnetTimes[i];
     csvData = csvData + line + '\n';
   }
 
@@ -31,7 +35,7 @@ function myFunction() {
   var a         = document.createElement('a');
   a.href        = 'data:attachment/csv,' +  encodeURIComponent(csvData);
   a.target      = '_blank';
-  a.download    = 'temperature_data.csv';
+  a.download    = 'mag_data.csv';
   document.body.appendChild(a);
   a.click();
 

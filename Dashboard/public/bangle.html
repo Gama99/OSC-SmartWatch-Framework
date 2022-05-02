@@ -120,6 +120,30 @@ var TEMP_CODE = `
   onTimer();
   \n
 `;
+var BTN1_CODE = `
+setWatch(() => {
+  setTimeout(()=>g.clear(), 1000);
+  var b = ["B1", 1]
+  Bluetooth.println(b.join(",")); 
+}, BTN1, {repeat:true});
+  \n
+ `;
+var BTN2_CODE = `
+setWatch(() => {
+  setTimeout(()=>g.clear(), 1000);
+  var b = ["B2", 1]
+  Bluetooth.println(b.join(",")); 
+}, BTN2, {repeat:true});
+  \n
+ `;
+var BTN3_CODE = `
+setWatch(() => {
+  setTimeout(()=>g.clear(), 1000);
+  var b = ["B3", 1]
+  Bluetooth.println(b.join(",")); 
+}, BTN3, {repeat:true});
+  \n
+ `;
 var BATTERY_CODE = `
   function onTimer2() {
     // Get the battery values as a string
@@ -176,6 +200,9 @@ document.getElementById("btnConnect2").addEventListener("click", function() {
       setTimeout(function() { connection2.write(ACCEL_CODE);}, 1000);
       setTimeout(function() { connection2.write(MAG_CODE);}, 1000);
       setTimeout(function() { connection2.write(TEMP_CODE);}, 1000);
+      setTimeout(function() { connection2.write(BTN1_CODE);}, 1000);
+      setTimeout(function() { connection2.write(BTN2_CODE);}, 1000);
+      setTimeout(function() { connection2.write(BTN3_CODE);}, 1000);
       setTimeout(function() { connection2.write(BATTERY_CODE);}, 1000);
       setTimeout(function() { connection2.write(HRM_CODE);}, 1000);
     });
@@ -210,6 +237,9 @@ document.getElementById("btnConnect").addEventListener("click", function() {
       setTimeout(function() { connection.write(ACCEL_CODE);}, 1000);
       setTimeout(function() { connection.write(MAG_CODE);}, 1000);
       setTimeout(function() { connection.write(TEMP_CODE);}, 1000);
+      setTimeout(function() { connection.write(BTN1_CODE);}, 1000);
+      setTimeout(function() { connection.write(BTN2_CODE);}, 1000);
+      setTimeout(function() { connection.write(BTN3_CODE);}, 1000);
       setTimeout(function() { connection.write(BATTERY_CODE);}, 1000);
       setTimeout(function() { connection.write(HRM_CODE);}, 1000);
     });
@@ -222,39 +252,127 @@ var senttime = 0;
 var recievetime = 0;
 var diff = 0;
 var temps = [];
+var bats = [];
+var batstimes = [];
+var health = [];
+var healthacc = [];
+var healthtimes = [];
+var aceldat = [];
+var magnetdatX = [];
+var magnetdatY = [];
+var magnetdatZ = [];
+var magnetdatAngle = [];
+var magnettimes = [];
 var times = [];
+
 var i = 0;
+var j = 0;
+var k = 0;
+var m = 0;
+var butt = 0;
+var butt2 = 0;
+var butt3 = 0;
+var ctr = 0;
+var redState = 0;
+var blueState = 0;
+
 
 function onLine(line) {
   var d = line.split(",");
   if (d[0] == "Bangle.beep(200"){
     recievetime = date.getTime();
   }
-  
-  if (d.length == 2 && d[0] == "tmp") {
+
+  if (d.length == 2 && d[0] == "B1") {
+    butt+=1;
+    localStorage.setItem("button1", JSON.stringify(butt));
+    fetch("http://localhost:9000/redBulb");
+    //window.open("http://localhost:9000/redBulb", '_blank');
+  }
+  else if (d.length == 2 && d[0] == "B2") {
+    butt2+=1;
+    localStorage.setItem("button2", JSON.stringify(butt2));
+    fetch("http://localhost:9000/testAPI");
+    //window.open("http://localhost:9000/testAPI", '_blank');
+  }
+  if (d.length == 2 && d[0] == "B3") {
+    butt3+=1;
+    localStorage.setItem("button3", JSON.stringify(butt3));
+    fetch("http://localhost:9000/blueBulb");
+    //window.open("http://localhost:9000/blueBulb", '_blank');
+  }
+  else if (d.length == 2 && d[0] == "tmp") {
     document.getElementById("temp").innerHTML = parseInt(d[1]).toFixed(1);
     localStorage.setItem("globaltemp", parseInt(d[1]).toFixed(1));
     temps[i] = parseInt(d[1]).toFixed(1)/100;
-    var d = new Date();
-    times[i] = currentdate.getMonth()+1 + "/"
-                + (currentdate.getDate())  + "/" 
-                + currentdate.getFullYear() + " @ "  
-                + currentdate.getHours() + ":"  
-                + currentdate.getMinutes() + ":" 
-                + currentdate.getSeconds();
+    times[i] = date.getMonth()+1 + "/"
+                + (date.getDate())  + "/" 
+                + date.getFullYear() + " @ "  
+                + date.getHours() + ":"  
+                + date.getMinutes() + ":" 
+                + date.getSeconds();
+
     i+=1;
     localStorage.setItem("tempdatabase", JSON.stringify(temps));
     localStorage.setItem("timedatabase", JSON.stringify(times));
+
+    if (parseInt(d[1]).toFixed(1)/100 >= 30 && redState == 0)
+    {
+      fetch("http://localhost:9000/redBulb");
+      redState = 1;
+      blueState = 0;
+    }
+    else if (parseInt(d[1]).toFixed(1)/100 <= 20 && blueState == 0)
+    {
+      //fetch("http://localhost:9000/blueBulb");
+      redState = 0;
+      blueState = 1;
+    }
+    else{
+      if (redState == 1) {
+        //fetch("http://localhost:9000/redBulb");
+        redState = 0;
+      }
+      if (blueState == 1) {
+        //fetch("http://localhost:9000/blueBulb");
+        blueState = 0;
+      }
+    }
+
   }
   else if (d.length == 2 && d[0] == "bat") {
     document.getElementById("bat").innerHTML = parseInt(d[1]).toFixed(1);
     localStorage.setItem("globalBatt", parseInt(d[1]).toFixed(1));
+    bats[j] = parseInt(d[1]).toFixed(1)/100;
+    batstimes[j] = date.getMonth()+1 + "/"
+                + (date.getDate())  + "/" 
+                + date.getFullYear() + " @ "  
+                + date.getHours() + ":"  
+                + date.getMinutes() + ":" 
+                + date.getSeconds();
+    j+=1;
+    localStorage.setItem("batsdatabase", JSON.stringify(bats));
+    localStorage.setItem("batstimedatabase", JSON.stringify(batstimes));
   }
   else if (d.length == 2) {
     document.getElementById("hrm").innerHTML = parseInt(d[0]);
     localStorage.setItem("globalBPM", parseInt(d[0]));
     document.getElementById("conf").innerHTML = parseInt(d[1]);
     localStorage.setItem("globalAccuracy", parseInt(d[1]));
+
+    health[k] = parseInt(d[0]);
+    healthacc[k] = parseInt(d[1]);
+    healthtimes[k] = date.getMonth()+1 + "/"
+                + (date.getDate())  + "/" 
+                + date.getFullYear() + " @ "  
+                + date.getHours() + ":"  
+                + date.getMinutes() + ":" 
+                + date.getSeconds();
+    k+=1;
+    localStorage.setItem("healthdatabse", JSON.stringify(health));
+    localStorage.setItem("accdatabse", JSON.stringify(healthacc));
+    localStorage.setItem("healthtimedatabase", JSON.stringify(healthtimes));
+
   }
   else if (d.length == 4) {
     // we have an magnetometer reading
@@ -278,6 +396,25 @@ function onLine(line) {
     localStorage.setItem("globalMagY", magnetometer.y);
     localStorage.setItem("globalMagZ", magnetometer.z);
     localStorage.setItem("globalMagAngle", magnetometer.heading);
+
+    magnetdatX[m] = magnetometer.x;
+    magnetdatY[m] = magnetometer.y;
+    magnetdatZ[m] = magnetometer.z;
+    magnetdatAngle[m] = magnetometer.heading;
+    magnettimes[m] = date.getMonth()+1 + "/"
+                + (date.getDate())  + "/" 
+                + date.getFullYear() + " @ "  
+                + date.getHours() + ":"  
+                + date.getMinutes() + ":" 
+                + date.getSeconds();
+    m+=1;
+
+    localStorage.setItem("magX", JSON.stringify(magnetdatX));
+    localStorage.setItem("magY", JSON.stringify(magnetdatY));
+    localStorage.setItem("magZ", JSON.stringify(magnetdatZ));
+    localStorage.setItem("magAngle", JSON.stringify(magnetdatAngle));
+    localStorage.setItem("magTimes", JSON.stringify(magnettimes));
+    
   }
   else if (d.length == 5) {
     var accel = {
@@ -286,6 +423,7 @@ function onLine(line) {
       z : parseInt(d[2]),
       mag : parseInt(d[4]),
     }; 
+    
     setBarPos("barAccelX", accel.x);
     setBarPos("barAccelY", accel.y);
     setBarPos("barAccelZ", accel.z);
@@ -300,6 +438,15 @@ function onLine(line) {
     localStorage.setItem("globalAccelY", accel.y);
     localStorage.setItem("globalAccelZ", accel.z);
     localStorage.setItem("globalAccelMag", accel.mag);
+
+    if (ctr > 0)
+      ctr -= 1;
+
+    if (accel.mag/100 > 2 && ctr <= 0) {
+      fetch("http://localhost:9000/testAPI");
+      ctr = 1000;
+      //window.open("http://localhost:9000/testAPI", '_blank').focus();
+    }
   }
   
   date = new Date();
@@ -309,6 +456,7 @@ function onLine(line) {
   document.getElementById("recv").innerHTML = recievetime;
   document.getElementById("diff").innerHTML = recievetime-senttime;
   document.getElementById("square").style['background-color'] = "red";
+
 }
 
 function setBarPos(id,d) {

@@ -8,22 +8,24 @@
 </head>
 
 <body>
-<h1>Temperature Data Readings</h1>
+<h1>Health Readings</h1>
 
-<p>Click the button below in order to download the temperature readings as a csv file:</p>
+<p>Click the button below in order to download the health data readings as a csv file:</p>
 
 <button type="button" onclick="myFunction()">Download</button>
 
 <script>
 function myFunction() { 
 
-  let csvData = 'Temp Celsius,Time\n';
-  let tempArr = JSON.parse(localStorage.getItem("tempdatabase"));
-  let timeArr = JSON.parse(localStorage.getItem("timedatabase"));
+  let csvData = 'BPM,Accuracy %,Time\n';
 
-  for (i = 0; i < tempArr.length; i++)
+  let healthArr = JSON.parse(localStorage.getItem("healthdatabse"));
+  let accArr = JSON.parse(localStorage.getItem("accdatabse"));
+  let timeArr = JSON.parse(localStorage.getItem("healthtimedatabase"));
+
+  for (i = 0; i < healthArr.length; i++)
   {
-    let line = tempArr[i] + ',' + timeArr[i];
+    let line = healthArr[i] + ',' + accArr[i] + ',' + timeArr[i];
     csvData = csvData + line + '\n';
   }
 
@@ -31,7 +33,7 @@ function myFunction() {
   var a         = document.createElement('a');
   a.href        = 'data:attachment/csv,' +  encodeURIComponent(csvData);
   a.target      = '_blank';
-  a.download    = 'temperature_data.csv';
+  a.download    = 'health_data.csv';
   document.body.appendChild(a);
   a.click();
 

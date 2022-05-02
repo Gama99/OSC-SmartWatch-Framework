@@ -22,11 +22,12 @@ import { mainListItems, secondaryListItems } from './listItems';
 import Chart from './Chart';
 import GPS from './GPS';
 import Compass from './Compass';
+import Graph from './Chart';
 import Orders from './Orders';
 import Index from './Bangle';
 import Accelerometer from './Accelerometer';
 import Health from './Health';
-import Location from './Location';
+import Light from './Light';
 import Temperature from './Temperature';
 import Connection from './Connectivity';
 import Tester from './Tester';
@@ -225,11 +226,6 @@ function DashboardContent() {
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                   <Index />
-                </Paper>
-              </Grid>
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Location />
                 </Paper>
               </Grid>
             </Grid>

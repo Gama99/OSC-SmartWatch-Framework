@@ -3,11 +3,13 @@ import Title from './Title';
 
 function iframe() {
   return {
-      __html: '<iframe src="./connectivity.html" width="250" height="100"></iframe>'
+      __html: '<iframe src="./connectivity.html" width="500" height="200"></iframe>'
   }
 }
 
 export default function Connection() {
+
+
   return (
       <div>
           <Title>Connected?</Title>

@@ -8,22 +8,22 @@
 </head>
 
 <body>
-<h1>Temperature Data Readings</h1>
+<h1>Battery Readings</h1>
 
-<p>Click the button below in order to download the temperature readings as a csv file:</p>
+<p>Click the button below in order to download the battery readings as a csv file:</p>
 
 <button type="button" onclick="myFunction()">Download</button>
 
 <script>
 function myFunction() { 
 
-  let csvData = 'Temp Celsius,Time\n';
-  let tempArr = JSON.parse(localStorage.getItem("tempdatabase"));
-  let timeArr = JSON.parse(localStorage.getItem("timedatabase"));
+  let csvData = 'Battery %,Time\n';
+  let batvals = JSON.parse(localStorage.getItem("batsdatabase"));
+  let timeArr = JSON.parse(localStorage.getItem("batstimedatabase"));
 
-  for (i = 0; i < tempArr.length; i++)
+  for (i = 0; i < batvals.length; i++)
   {
-    let line = tempArr[i] + ',' + timeArr[i];
+    let line = batvals[i] + ',' + timeArr[i];
     csvData = csvData + line + '\n';
   }
 
@@ -31,7 +31,7 @@ function myFunction() {
   var a         = document.createElement('a');
   a.href        = 'data:attachment/csv,' +  encodeURIComponent(csvData);
   a.target      = '_blank';
-  a.download    = 'temperature_data.csv';
+  a.download    = 'battery_data.csv';
   document.body.appendChild(a);
   a.click();
 

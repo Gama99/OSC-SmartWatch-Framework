@@ -1,70 +1,37 @@
 <!DOCTYPE html>
 <html>
- <head>
-  <title>Bangle.js Connection Status</title>
- </head>
- <body> 
-<script src="https://www.puck-js.com/puck.js"></script>
-<p> Connection Status: <span id="conn"></span></p>
-<p> Temperature (Celsius): <span id="temp"></span></p>
-<script>
+    <head>
+        <script src="require.js"></script>
+        <script>
+            require.config({
+                packages: [{
+                    name: 'highcharts',
+                    main: 'highcharts'
+                }],
+                paths: {
+                    // Change this to your server if you do not wish to use our CDN.
+                    'highcharts': 'https://code.highcharts.com'
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script>
+            require([
+                'highcharts',
+                'highcharts/modules/exporting',
+                'highcharts/modules/accessibility'
+            ], function (Highcharts) {
+                // This function runs when the above files have been loaded.
 
-var TEMP_CODE = `
-  function onTimer() {
-    // Get the temperature as a string
-    var t = E.getTemperature().toFixed(1);
-    // Clear display
-    g.clear();
-    // Use the small font for a title
-    g.setFontBitmap();
-    g.drawString("Temperature:");
-    // Use a large font for the value itself
-    g.setFontVector(40);
-    g.drawString(t, (g.getWidth()-g.stringWidth(t))/2,10);
-    // Update the screen
-    g.flip();
-    Bluetooth.println(t);
-  }
-
-  // Update temperature every 1 seconds
-  setInterval(onTimer,1000);
-  // Update temperature immediately
-  onTimer();
-  \n
-`;
-
-document.getElementById("temp").innerHTML = localStorage.getItem("globaltemp");
-
-var connection;
-
-if (connection) {
-  document.getElementById("conn").innerHTML = "True";
-}
-else{
-  document.getElementById("conn").innerHTML = "False";
-}
-
-  Puck.connect(function(c) {
-    connection = c;
-    var buf = "";
-    connection.on("data", function(d) {
-    buf += d;
-    var l = buf.split("\n");
-    buf = l.pop();
-    l.forEach(onLine);
-    });
-
-    connection.write("reset();\n", function() {
-      const d = new Date();
-      setTimeout(function() { connection.write(TEMP_CODE);}, 10000);
-    });
-  });
-
-
-function onLine(line) {
-  //document.getElementById("temp").innerHTML = parseInt(line).toFixed(1);
-}
-
-</script>
- </body>
+                // Create a test chart.
+                Highcharts.chart('container', {
+                    series: [{
+                        data: [1,2,3,4,5]
+                    }]
+                });
+            });
+        </script>
+    </body>
 </html>

@@ -51,7 +51,7 @@ class Health extends Component {
           With {Accuracy}% certainty
         </Typography>
         <div>
-          <Link color="primary" href="#" onClick={preventDefault}>
+          <Link href="javascript:window.open('healthdata.html','popup','width=600,height=600');">
             View Health Data
           </Link>
         </div>

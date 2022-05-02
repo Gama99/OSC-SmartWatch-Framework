@@ -24,7 +24,7 @@ class Battery extends Component {
           {disp/100}%
         </Typography>
         <div>
-          <Link color="primary" href="#" onClick={preventDefault}>
+          <Link href="javascript:window.open('battery.html','popup','width=600,height=600');">
             View Battery Data
           </Link>
         </div>
