@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Bangle.js Accelerometer streaming</title>
+ </head>
+ <body> 
+<script src="https://www.puck-js.com/puck.js"></script>
+<button id="btnConnect">Connect to Watch</button>
+
+<!-- Raw Magentometer Readings-->
+<p> X reading: <span id="displayx"></span></p>
+<p>X: <span class="bar"><span id="barX"></span></span></p>
+<br>
+
+<p> Y reading: <span id="displayy"></span></p>
+<p>Y: <span class="bar"><span id="barY"></span></span></p>
+<br>
+
+<p> Z reading: <span id="displayz"></span></p>
+<p>Z: <span class="bar"><span id="barZ"></span></span></p>
+<br>
+
+<p> Angle reading: <span id="angle"></span></p>
+<p>Angle: <span class="bar"><span id="barAngle"></span></span></p>
+
+<script>
+// Code to upload to Bangle.js
+var BANGLE_CODE = `
+Bangle.setCompassPower(1);
+Bangle.on('mag',function(a) {
+    var d = [
+    Math.round(a.x),
+    Math.round(a.y),
+    Math.round(a.z),
+    Math.round(a.heading),
+    ];
+    Bluetooth.println(d.join(","));
+});\n
+`;
+
+// When we click the connect button...
+var connection;
+// const fs = require('fs')
+document.getElementById("btnConnect").addEventListener("click", function() {
+  // disconnect if connected already
+  if (connection) {
+    connection.close();
+    connection = undefined;
+  }
+  // Connect
+  Puck.connect(function(c) {
+    if (!c) {
+      alert("Couldn't connect!");
+      return;
+    }
+    connection = c;
+    // Handle the data we get back, and call 'onLine'
+    // whenever we get a line
+    var buf = "";
+    connection.on("data", function(d) {
+    buf += d;
+    var l = buf.split("\n");
+    buf = l.pop();
+      // console.log("EVERY TIME?"); //YES EVERY TIME
+    l.forEach(onLine);
+    //   document.getElementById("greeting").innerHTML = l.line.split(",")[0];
+    // var temp = l.split(",");
+    // console.log(l)
+    // document.getElementById("display").innerHTML = temp;
+    });
+    // First, reset the Bangle
+    connection.write("reset();\n", function() {
+      // Wait for it to reset itself
+      //BANGLE_CODE
+      //HRM_CODE
+      const d = new Date();
+      
+      setTimeout(function() { connection.write(BANGLE_CODE);}, 1000);
+        // Now upload our code to it
+    
+        // connection.write(HRM_CODE+"\n",
+      // function() { console.log("Ready..."); }
+          
+      
+    });
+  });
+});
+
+var date = new Date();
+var tempor = date.getTime();
+var senttime = 0;
+var recievetime = 0;
+var diff = 0;
+// When we get a line of data, check it and if it's
+// from the accelerometer, update it
+function onLine(line) {
+//   console.log("RECEIVED:"+line);
+  var d = line.split(",");
+  // console.log(d);
+if (d[0] == "Bangle.beep(200"){
+  recievetime = date.getTime();
+}
+
+  if (d.length==4) {
+    // we have an magnetometer reading
+    var magnetometer = {
+      x : parseInt(d[0]),
+      y : parseInt(d[1]),
+      z : parseInt(d[2]),
+      heading : parseInt(d[3]),
+    }; 
+    // var hrm = {
+    //   hrm : parseInt(d[3]),
+    // }
+    // Update bar positions
+    setBarPos("barX", magnetometer.x);
+    setBarPos("barY", magnetometer.y);
+    setBarPos("barZ", magnetometer.z);
+    setBarPos("barAngle", magnetometer.heading);
+    document.getElementById("displayx").innerHTML = magnetometer.x;
+    document.getElementById("displayy").innerHTML = magnetometer.y;
+    document.getElementById("displayz").innerHTML = magnetometer.z;
+    document.getElementById("angle").innerHTML = magnetometer.heading;
+  }
+}
+// Set the position of each bar
+function setBarPos(id,d) {
+  var s = document.getElementById(id).style;
+  if (d>150) d=150;
+  if (d<-150) d=-150;
+  if (d>=0) {
+    s.left="150px";
+    s.width=d+"px";
+  } else { // less than 0
+    s.left=(150+d)+"px";
+    s.width=(-d)+"px";
+  }
+}
+</script>
+<style>
+/* Styles just to make the bars for X Y and Z look neat */
+.bar {
+  width : 500px;
+  height: 24px;
+  background-color : rgb(201, 200, 200);
+  position:relative;
+  display: inline-block;
+}
+.bar span {
+  width : 1px;
+  height: 20px;
+  background-color : green;
+  position:absolute;
+  display: inline-block;
+  left: 150px;
+  top: 2px;
+}
+</style>
+ </body>
+</html>

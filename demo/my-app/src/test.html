@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Bangle.js Accelerometer streaming</title>
+ </head>
+ <body> 
+<script src="https://www.puck-js.com/puck.js"></script>
+<button id="btnConnect">Connect to Watch</button>
+<button onclick="connection.write('LED1.set()' + '\n');">LED On!</button>
+<button onclick="connection.write('LED1.reset()' + '\n');">LED Off!</button>
+<button onclick="connection.write('Bangle.beep(200,6000)' + '\n'); senttime = date.getTime();">Buzz</button>
+<!-- <p id="greeting">Greetings</p> -->
+ <p> x val: <span id="displayx"></span></p>
+ <p> y val: <span id="displayy"></span></p>
+ <p> z val: <span id="displayz"></span></p>
+
+ <p> hrm: <span id="hrm"></span></p>
+ <p> cert: <span id="cert"></span></p>
+ <p> milli: <span id="milli"></span></p>
+ <p> sent: <span id="sent"></span></p>
+ <p> recv: <span id="recv"></span></p>
+ <p> diff: <span id="diff"></span></p>
+ <!-- <div id="displayx"></div>
+ <div id="displayy"></div>
+ <div id="displayz"></div> -->
+<p>X: <span class="bar"><span id="barX"></span></span></p>
+<p>Y: <span class="bar"><span id="barY"></span></span></p>
+<p>Z: <span class="bar"><span id="barZ"></span></span></p>
+
+<div class="square"></div>
+<script>
+// Code to upload to Bangle.js
+var BANGLE_CODE = `
+Bangle.on('accel',function(a) {
+    var d = [
+    Math.round(a.x*100),
+    Math.round(a.y*100),
+    Math.round(a.z*100),
+    Math.round(a.diff*100),
+    Math.round(a.mag*100),
+    ];
+    Bluetooth.println(d.join(","));
+});\n
+`;
+var HRM_CODE = `
+Bangle.setHRMPower(1);
+Bangle.on('HRM', function(h) { 
+    var w = [
+    h.bpm,
+    h.confidence,
+    ];
+    Bluetooth.println(w.join(","));
+ });\n
+ `;
+// When we click the connect button...
+var connection;
+// const fs = require('fs')
+document.getElementById("btnConnect").addEventListener("click", function() {
+  // disconnect if connected already
+  if (connection) {
+    connection.close();
+    connection = undefined;
+  }
+  // Connect
+  Puck.connect(function(c) {
+    if (!c) {
+      alert("Couldn't connect!");
+      return;
+    }
+    connection = c;
+    // Handle the data we get back, and call 'onLine'
+    // whenever we get a line
+    var buf = "";
+    connection.on("data", function(d) {
+    buf += d;
+    var l = buf.split("\n");
+    buf = l.pop();
+      // console.log("EVERY TIME?"); //YES EVERY TIME
+    l.forEach(onLine);
+    //   document.getElementById("greeting").innerHTML = l.line.split(",")[0];
+    // var temp = l.split(",");
+    // console.log(l)
+    // document.getElementById("display").innerHTML = temp;
+    });
+    // First, reset the Bangle
+    connection.write("reset();\n", function() {
+      // Wait for it to reset itself
+      //BANGLE_CODE
+      //HRM_CODE
+      const d = new Date();
+      
+      setTimeout(function() { connection.write(BANGLE_CODE);}, 1000);
+      setTimeout(function() { connection.write(HRM_CODE);}, 1000);
+        // Now upload our code to it
+    
+        // connection.write(HRM_CODE+"\n",
+      // function() { console.log("Ready..."); }
+          
+      
+    });
+  });
+});
+
+var date = new Date();
+var tempor = date.getTime();
+var senttime = 0;
+var recievetime = 0;
+var diff = 0;
+// When we get a line of data, check it and if it's
+// from the accelerometer, update it
+function onLine(line) {
+//   console.log("RECEIVED:"+line);
+  var d = line.split(",");
+  // console.log(d);
+if (d[0] == "Bangle.beep(200"){
+  recievetime = date.getTime();
+}
+
+  if (d.length==5) {
+    // we have an accelerometer reading
+    var accel = {
+      x : parseInt(d[0]),
+      y : parseInt(d[1]),
+      z : parseInt(d[2]),
+    }; 
+    // var hrm = {
+    //   hrm : parseInt(d[3]),
+    // }
+    // Update bar positions
+    setBarPos("barX", accel.x);
+    setBarPos("barY", accel.y);
+    setBarPos("barZ", accel.z);
+    document.getElementById("displayx").innerHTML = accel.x;
+    document.getElementById("displayy").innerHTML = accel.y;
+    document.getElementById("displayz").innerHTML = accel.z;
+  }
+  else if (d.length == 2){
+
+    document.getElementById("hrm").innerHTML = parseInt(d[0]);
+    document.getElementById("cert").innerHTML = parseInt(d[1]);
+  }
+  // const date = new Date();
+  date = new Date();
+  var tempor = date.getTime();
+  document.getElementById("milli").innerHTML = tempor;
+  document.getElementById("sent").innerHTML = senttime;
+  document.getElementById("recv").innerHTML = recievetime;
+  document.getElementById("diff").innerHTML = recievetime-senttime;
+  document.getElementById("square").style['background-color'] = "red";
+}
+// Set the position of each bar
+function setBarPos(id,d) {
+  var s = document.getElementById(id).style;
+  if (d>150) d=150;
+  if (d<-150) d=-150;
+  if (d>=0) {
+    s.left="150px";
+    s.width=d+"px";
+  } else { // less than 0
+    s.left=(150+d)+"px";
+    s.width=(-d)+"px";
+  }
+}
+</script>
+<style>
+/* Styles just to make the bars for X Y and Z look neat */
+.bar {
+  width : 500px;
+  height: 24px;
+  background-color : darkgrey;
+  position:relative;
+  display: inline-block;
+}
+.bar span {
+  width : 1px;
+  height: 20px;
+  background-color : red;
+  position:absolute;
+  display: inline-block;
+  left: 150px;
+  top: 2px;
+}
+
+.square {
+  height: 50px;
+  width: 50px;
+  background-color: #555;
+}
+</style>
+ </body>
+</html>

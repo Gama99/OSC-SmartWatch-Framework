@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+</head>
+</head>
+
+<body>
+<h1>Temperature Data Readings</h1>
+
+<p>Click the button below in order to download the temperature readings as a csv file:</p>
+
+<button type="button" onclick="myFunction()">Download</button>
+
+<script>
+function myFunction() { 
+  /*
+  var A = [['Temperature °Celsius','Date/Time']];
+
+  var temps = JSON.parse(localStorage.getItem("tempdatabase"));
+  var times = JSON.parse(localStorage.getItem("timedatabase"));
+  
+  for (var j = 0; j < temps.length; j++)
+  {
+    A.push([temps[j], times[j]]);
+  }
+
+  var csvRows = [];
+
+  for(var i=0, l=A.length; i<l; ++i){
+    csvRows.push(A[i].join(','));
+  }
+
+  var csvString = csvRows.join("%0A");
+  document.write(csvString);
+
+  var a         = document.createElement('a');
+  a.href        = 'data:attachment/csv,' +  encodeURIComponent(csvString);
+  a.target      = '_blank';
+  a.download    = 'myFile.csv';
+  document.body.appendChild(a);
+  a.click();
+  */
+
+
+  
+  var csvRows = JSON.parse(localStorage.getItem("tempdatabase"));
+  document.write(csvRows);
+  var a         = document.createElement('a');
+  a.href        = 'data:attachment/csv,' +  encodeURIComponent(csvRows);
+  a.target      = '_blank';
+  a.download    = 'temperature_data.csv';
+  document.body.appendChild(a);
+  a.click();
+}
+</script>
+
+
+</body>
+
+</html>
