@@ -47,6 +47,7 @@ Volume/Gesture Control:
   side of the watch screen to collect heart rate data or the right side of the screen to start looking to
   control the volume. To actually control the volume flick the wrist wearing teh watch or press
   button three. The state of the system can be monitored on the window running the python.
+  For questions feel free emailing Garrett Witt at gcwitt18@vt.edu
 
 
 Temperature/Smart Switch Control: 
