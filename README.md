@@ -1,7 +1,7 @@
 # FitnessWatch
 Pulled from the final project binder
 
-Data Dashboard
+Data Dashboard: 
   Running the dashboard is a very simple process, starting with visiting a website where
   the web application has been hosted on: https://darsh97229.github.io/dashboard/. Once visiting
   this page, a site similar to the following figure will be loaded.
@@ -20,7 +20,7 @@ Data Dashboard
   the watch itself to indicate to the user such information.
   
   
-Heart Rate Monitor
+Heart Rate Monitor: 
   In order to run the heart heart monitor with signal processing there are a few things that
   need to be done. The first is to start in the main directory of the project and run “python -m pip
   install heartpy”in a command prompt. The next step is to run “node .” in order to start an
@@ -33,7 +33,7 @@ Heart Rate Monitor
   able to see it being updated in there as well.
 
 
-Volume/Gesture Control
+Volume/Gesture Control: 
   There are three parts to running the volume control. But before running anything, in the
   directory with the main python file (ThePythonSideOfThings.py) to install the dependencies you
   will need to run “ npm install node-osc”, and “pip install pythonosc”. The first thing to run is
@@ -49,7 +49,7 @@ Volume/Gesture Control
   button three. The state of the system can be monitored on the window running the python.
 
 
-Temperature/Smart Switch Control
+Temperature/Smart Switch Control: 
   To run the temperature smart control does not require much since already it is integrated
   into the dashboard. First we are required to connect the Sonoff smart switches to the eWeLink
   servers using their smartphone app, that is done by pressing and holding the button on the Sonoff
